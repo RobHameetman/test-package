@@ -1,0 +1,103 @@
+# yaml-language-server: $schema=./_schema.json
+
+name: Publish
+
+on:
+  workflow_call:
+    inputs:
+      dist:
+        description: The directory from which the package will be publish
+        default: ./
+        required: false
+        type: string
+      dry:
+        description: Perform a dry run of the release
+        default: false
+        required: false
+        type: boolean
+      node:
+        description: The version of Node.js used
+        default: '{{node}}'
+        required: false
+        type: string
+      skip:
+        description: Skip jobs
+        default: false
+        required: false
+        type: boolean
+      debug:
+        description: Debug jobs
+        default: false
+        required: false
+        type: boolean
+
+env:
+  # General Options
+  name: {{name}}
+  version: ${{ github.ref_name }}
+  node: '{{node}}'
+  debug: false
+  type: canary
+  # Timeouts (in minutes)
+  timeout-setup: 10
+  timeout-tests: 30
+  timeout-deployments: 60
+  timeout-cache-invalidations: 10
+  # Environment Variables
+  APP_DEBUG: ${{ vars.APP_DEBUG }}
+  APP_ENV: PROD
+  APP_VERSION: ${{ github.ref_name }}
+  APP_ENDPOINT: ${{ vars.APP_ENDPOINT }}
+  CI_DEBUG: ${{ vars.CI_DEBUG }}
+  CI_TYPE: ${{ vars.CI_TYPE }}
+  NODE_ENV: production
+  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+jobs:
+  publish:
+    name: Publish
+    if: github.repository.archived != true
+    runs-on: ubuntu-20.04
+    container:
+      image: node:18
+    steps:
+      - name: Init
+        id: init
+        run: |
+          echo "__SKIP=${{ inputs.skip }}" >> $GITHUB_ENV
+          echo "__DEBUG=${{ inputs.debug }}" >> $GITHUB_ENV
+          echo "__PRERELEASE=${{ contains(github.ref_name, 'alpha') || contains(github.ref_name, 'beta') }}" >> $GITHUB_ENV
+          echo "__TIMEOUT_SETUP=${{ env.CI_TIMEOUT_SETUP || fromJSON(env.timeout-setup) }}" >> $GITHUB_ENV
+          echo "__TIMEOUT_DEPLOYMENTS=${{ env.CI_TIMEOUT_DEPLOYMENTS || fromJSON(env.timeout-deployments) }}" >> $GITHUB_ENV
+
+      - name: Debug
+        id: debug
+        if: >-
+          fromJSON(inputs.debug) == true &&
+          fromJSON(inputs.skip) != true
+        run: |
+          echo "RUNNER_DEBUG=${{ fromJSON(env.__DEBUG) }}" >> $GITHUB_ENV
+          echo "DEBUG=${{ fromJSON(env.__DEBUG) }}" >> $GITHUB_ENV
+
+      - name: Variables
+        id: secrets
+        if: fromJSON(env.secrets-failover) == true
+        run: |
+          echo "APP_NAME=${{ secrets.APP_NAME || env.name }}" >> $GITHUB_ENV &&
+          echo "APP_GEOCODING_SERVICE_ENDPOINT=${{ secrets.APP_GEOCODING_SERVICE_ENDPOINT || env.geocoding-api }}" >> $GITHUB_ENV &&
+          echo "APP_FORECAST_SERVICE_ENDPOINT=${{ secrets.APP_FORECAST_SERVICE_ENDPOINT || env.forecasting-api }}" >> $GITHUB_ENV
+
+      - name: Setup
+        id: setup
+        uses: actions/download-artifact@v3
+        timeout-minutes: ${{ fromJSON(env.timeout-setup) }}
+        if: fromJSON(env.__SKIP) != true
+        with:
+          name: build-artifacts
+          path: ${{ inputs.dist }}
+
+      - name: Publish
+        id: publish
+        timeout-minutes: ${{ fromJSON(env.__TIMEOUT_SETUP) }}
+        if: fromJSON(env.__SKIP) != true
+        run: npx semantic-release

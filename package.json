@@ -1,0 +1,152 @@
+{
+	"name": "@{{scope}}/{{name}}",
+	"version": "1.0.0-alpha.1",
+	"description": "{{description}}",
+	"author": "Robert H. Hameetman (https://www.robhameetman.com/)",
+	"homepage": "https://www.npmjs.org/package/@{{scope}}/{{name}}",
+	"license": "MIT",
+	"private": true,
+	"main": "dist/index.min.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/{{org}}/{{repo}}"
+	},
+	"bugs": {
+		"url": "https://github.com/{{org}}/{{repo}}/issues"
+	},
+	"engines": {
+		"node": ">={{nodejs}}",
+		"npm": ">={{npmjs}}"
+	},
+	"scripts": {
+		"build": "rm -rf ./dist/ && NODE_ENV=production webpack --config=./config/webpack.config.js --mode=production --node-env=production",
+		"format": "NODE_ENV=production eslint ./src --ext=ts,tsx --fix && stylelint src --fix --cache",
+		"prepare": "husky install",
+		"reset": "rm -rf node_modules/ && npm cache clear --force && npm ci --legacy-peer-deps",
+		"setup": "sh scripts/setup.sh",
+		"test": "NODE_ENV=test jest --maxWorkers=50%"
+	},
+	"dependencies": {},
+	"devDependencies": {},
+	"browserslist": [
+		"defaults"
+	],
+	"eslintConfig": {
+		"extends": "@rob.hameetman",
+		"ignorePatterns": [
+			"tailwind.config.js",
+			"webpack.config.js",
+			"src/forecast/types/SevenDayForecast",
+			"typings/"
+		],
+		"rules": {
+			"sort-keys": "off",
+			"sort-imports": "off",
+			"import/no-unresolved": "off"
+		},
+		"overrides": [
+			{
+				"files": [
+					"**/test/**",
+					"**/__test__/**",
+					"*.spec.ts?(x)"
+				],
+				"rules": {
+					"no-proto": "off",
+					"@typescript-eslint/no-empty-function": "off",
+					"import/no-extraneous-dependencies": "off"
+				}
+			}
+		]
+	},
+	"prettier": {
+		"arrowParens": "always",
+		"semi": true,
+		"trailingComma": "all",
+		"singleQuote": true,
+		"printWidth": 80,
+		"tabWidth": 2,
+		"useTabs": true,
+		"endOfLine": "auto"
+	},
+	"stylelint": {
+		"extends": "stylelint-config-recommended",
+		"ignoreFiles": [
+			"dist/**/*.css",
+			"coverage/**/*.css",
+			"**/*.ts",
+			"**/*.tsx",
+			"**/*.json",
+			"**/*.spec.*",
+			"**/*.snap.*",
+			"**/*.jpg",
+			"**/*.png",
+			"**/*.md"
+		],
+		"rules": {
+			"indentation": "tab",
+			"at-rule-no-unknown": [
+				true,
+				{
+					"ignoreAtRules": [
+						"tailwind"
+					]
+				}
+			],
+			"font-family-no-missing-generic-family-keyword": false
+		}
+	},
+	"jest": {
+		"roots": [
+			"<rootDir>/src"
+		],
+		"collectCoverageFrom": [
+			"src/**/*.{ts,tsx}",
+			"!src/**/*.d.ts"
+		],
+		"coverageReporters": [
+			"text-summary"
+		],
+		"moduleFileExtensions": [
+			"js",
+			"ts",
+			"tsx",
+			"json",
+			"css",
+			"scss"
+		],
+		"moduleNameMapper": {
+			"^@app/(.*)$": "<rootDir>/src/$1",
+			"^@test/(.*)$": "<rootDir>/test/resources/$1",
+			"^.+\\.module\\.(css|sass|scss)$": "identity-obj-proxy"
+		},
+		"preset": "ts-jest",
+		"reporters": [
+			"default"
+		],
+		"setupFilesAfterEnv": [
+			"<rootDir>/test/jest/config/setupTests.ts"
+		],
+		"testEnvironment": "jsdom",
+		"testMatch": [
+			"<rootDir>/src/**/*.spec.{ts,tsx}"
+		],
+		"transform": {
+			"\\.ts?(x)$": "ts-jest",
+			"\\.(css|scss)$": "<rootDir>/test/jest/config/styleTransform.ts",
+			"^(?!.*\\.(ts|tsx|css|json|cjs)$)": "ts-jest"
+		},
+		"transformIgnorePatterns": [
+			"^.+\\.module\\.(css|sass|scss)$",
+			"node_modules/@adobe/css-tools"
+		]
+	},
+	"postcss": {
+		"plugins": {
+			"tailwindcss": {},
+			"autoprefixer": {}
+		}
+	}
+}

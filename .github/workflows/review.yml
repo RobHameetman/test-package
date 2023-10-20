@@ -1,0 +1,63 @@
+# yaml-language-server: $schema=./_schema.json
+
+name: Review
+
+concurrency: pr-build-${{ github.event.pull_request.number }}
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+env:
+  # General Options
+  name: {{name}}
+  node: '{{node}}'
+  debug: false
+  # Skip
+  skip-tests: false
+  skip-publish: true
+  # Timeouts (in minutes)
+  timeout-setup: 10
+  timeout-tests: 30
+  timeout-deployment: 60
+  # Environment Variables
+  APP_DEBUG: ${{ vars.APP_DEBUG }}
+  APP_ENDPOINT: ${{ vars.APP_ENDPOINT }}
+  CI_DEBUG: ${{ vars.CI_DEBUG }}
+  CI_PR_TIMEOUT_SETUP: ${{ vars.CI_PR_TIMEOUT_SETUP }}
+  CI_PR_TIMEOUT_TESTS: ${{ vars.CI_PR_TIMEOUT_TESTS }}
+  CI_PR_TIMEOUT_DEPLOYMENT: ${{ vars.CI_PR_TIMEOUT_DEPLOYMENT}}
+  CI_PR_TIMEOUT_CACHE_INVALIDATIONS: ${{ vars.CI_PR_TIMEOUT_CACHE_INVALIDATIONS }}
+  CI_SKIP_PRERELEASE: ${{ vars.CI_SKIP_PRERELEASE }}
+  DEBUG: ${{ vars.DEBUG }}
+  NODE_ENV: production
+  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+jobs:
+  test:
+    name: TEST
+    if: github.repository.archived != true
+    uses: ./.github/workflows/test.yml
+    with:
+      node: ${{ env.node }}
+      skip: ${{ env.CI_SKIP_TESTS || fromJSON(env.skip-tests) }}
+      debug: ${{ env.CI_DEBUG || env.DEBUG || fromJSON(env.debug) }}
+
+  build:
+    name: BUILD
+    needs: [test]
+    if: github.repository.archived != true
+    uses: ./.github/workflows/build.yml
+    with:
+      node: ${{ env.node }}
+      skip: ${{ env.CI_SKIP_TESTS || fromJSON(env.skip-tests) }}
+      debug: ${{ env.CI_DEBUG || env.DEBUG || fromJSON(env.debug) }}
+
+  publish:
+    name: PUBLISH
+    needs: [test, build]
+    if: github.repository.archived != true
+    uses: ./.github/workflows/deploy.yml
+    with:
+      skip: ${{ env.CI_SKIP_PRERELEASE || fromJSON(env.skip-publish) }}
+      debug: ${{ env.CI_DEBUG || env.DEBUG || fromJSON(env.debug) }}
