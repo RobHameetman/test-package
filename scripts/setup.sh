@@ -54,15 +54,10 @@ packageJsonOrder='{
 	types,
 	repository,
 	bugs,
+	engines,
 	scripts,
-	dependencies,
 	devDependencies,
-	browserslist,
-	eslintConfig,
-	prettier,
-	stylelint,
-	jest,
-	postcss
+	release
 }'
 
 ###################################
@@ -185,20 +180,6 @@ updateRemainingFiles() {
 	done
 }
 
-# Copy .env.example to .env
-setupEnvVars() {
-	if [ -f ".env" ]; then
-		read -r -p "The .env file already exists. Do you want to overwrite it? (y/N): " overwrite
-		overwrite=${overwrite:-"N"}
-
-		if ! [[ $overwrite =~ $YES_REGEX ]]; then
-			return
-		fi
-	fi
-
-	cp .env.example .env
-}
-
 correctPackageJsonOrder() {
 	local packageJson="package.json"
 	local tmpFile=$(mktemp)
@@ -271,14 +252,10 @@ getSetupOptions
 updatePackageJson
 
 # Fix devDependencies in package.json
-correctPackageJsonOrder
+# correctPackageJsonOrder
 
 # Inject placeholder values for each remaining placeholder
 updateRemainingFiles
-
-# Copy .env.example to .env
-echo "Setting up environment variables..."
-setupEnvVars
 
 SUCCESS=true
 echo "Setup complete!"

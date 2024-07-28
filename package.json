@@ -1,10 +1,10 @@
 {
-	"name": "@{{scope}}/{{name}}",
+	"name": "@/test-package",
 	"version": "1.0.0-alpha.1",
 	"type": "module",
-	"description": "{{description}}",
+	"description": "A package for testing configs",
 	"author": "Robert H. Hameetman (https://www.robhameetman.com/)",
-	"homepage": "https://www.npmjs.org/package/@{{scope}}/{{name}}",
+	"homepage": "https://www.npmjs.org/package/@/test-package",
 	"license": "MIT",
 	"private": true,
 	"main": "index.js",
@@ -12,10 +12,10 @@
   "types": "index.d.ts",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/{{org}}/{{repo}}"
+		"url": "git+https://github.com/RobHameetman/test-package"
 	},
 	"bugs": {
-		"url": "https://github.com/{{org}}/{{repo}}/issues"
+		"url": "https://github.com/RobHameetman/test-package/issues"
 	},
 	"engines": {
 		"node": ">={{nodejs}}",
