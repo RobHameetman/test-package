@@ -1,10 +1,10 @@
 {
-	"name": "@/test-package",
+	"name": "@rob.hameetman/test-package",
 	"version": "1.0.0-alpha.1",
 	"type": "module",
 	"description": "A package for testing configs",
 	"author": "Robert H. Hameetman (https://www.robhameetman.com/)",
-	"homepage": "https://www.npmjs.org/package/@/test-package",
+	"homepage": "https://www.npmjs.org/package/@rob.hameetman/test-package",
 	"license": "MIT",
 	"private": true,
 	"main": "index.js",
@@ -18,11 +18,8 @@
 		"url": "https://github.com/RobHameetman/test-package/issues"
 	},
 	"engines": {
-		"node": ">={{nodejs}}",
-		"npm": ">={{npmjs}}"
-	},
-	"scripts": {
-		"setup": "sh scripts/setup.sh"
+		"node": ">=22.3.0",
+		"npm": ">=10.8.1"
 	},
 	"devDependencies": {
 		"@rob.hameetman/semantic-release-config": "file:./packages/"
