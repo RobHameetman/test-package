@@ -40,81 +40,28 @@ SUCCESS=false
 ###################################
 #          PACKAGE.JSON           #
 ###################################
-
-# List of dependencies required at runtime.
-dependencies=(
-	@datadog/browser-logs
-	@datadog/browser-rum
-	@nextui-org/react
-	@universe/address-parser
-	@welldone-software/why-did-you-render
-	core-js
-	history
-	lodash
-	path-browserify
-	react
-	react-dom
-	react-helmet
-	react-router-dom
-	regenerator-runtime
-	tailwindcss
-)
-
-# List of dependencies required at build time. These will not be installed when
-# NODE_ENV is 'production'.
-devDependencies=(
-  @commitlint/config-conventional
-	@faker-js/faker
-  @rbnlffl/rollup-plugin-eslint
-	@rob.hameetman/eslint-plugin
-	@rob.hameetman/semantic-release-config
-	@rob.hameetman/stylelint-plugin
-  @rollup/plugin-commonjs
-  @rollup/plugin-node-resolve
-  @testing-library/jest-dom
-	@types/node
-	@typescript-eslint/eslint-plugin
-  commitlint
-	dotenv
-	dotenv-conversion
-	husky
-	identity-obj-proxy
-	jest
-	jest-environment-jsdom
-	node-sass
-	postcss
-  rollup
-  rollup-plugin-copy
-  rollup-plugin-terser
-  rollup-plugin-typescript2
-	stylelint
-	stylelint-config-recommended
-	stylelint-webpack-plugin
-	terser-webpack-plugin
-	ts-jest
-	ts-loader
-	typescript
-)
-
 packageJsonOrder='{
-	name, 
-	version, 
-	description, 
-	author, 
-	homepage, 
-	license, 
-	private, 
-	main, 
-	repository, 
-	bugs, 
-	scripts, 
-	dependencies, 
-	devDependencies, 
-	browserslist, 
-	eslintConfig, 
-	prettier, 
-	stylelint, 
-	jest, 
+	name,
+	version,
+	type,
+	description,
+	author,
+	homepage,
+	license,
+	private,
+	main,
+	module,
+	types,
+	repository,
+	bugs,
+	scripts,
+	dependencies,
+	devDependencies,
+	browserslist,
+	eslintConfig,
+	prettier,
+	stylelint,
+	jest,
 	postcss
 }'
 
@@ -133,12 +80,6 @@ node="${nodejs%%.*}"
 npmjs=$(npm -v)
 npm="${npmjs%%.*}"
 
-# These are initialized to an empty string because we can only get the once 
-# we've finished installing our dependencies.
-react=""
-typescript=""
-rollup=""
-
 placeholders=(
 	"{{name}}"
 	"{{org}}"
@@ -147,9 +88,6 @@ placeholders=(
 	"{{nodejs}}"
 	"{{node}}"
 	"{{npm}}"
-	"{{react}}"
-	"{{typescript}}"
-	"{{rollup}}"
 )
 
 ###################################
@@ -313,12 +251,6 @@ getSetupOptions() {
 	repo=${repo:-$defaultRepo}
 }
 
-getDependencyVersions() {
-	react=$(grep '"version":' node_modules/react/package.json | awk -F'"' '{print $4}')
-	typescript=$(grep '"version":' node_modules/typescript/package.json | awk -F'"' '{print $4}')
-	rollup=$(grep '"version":' node_modules/rollup/package.json | awk -F'"' '{print $4}')
-}
-
 ###################################
 #             SCRIPT              #
 ###################################
@@ -337,17 +269,6 @@ getSetupOptions
 
 # Inject placeholder values for each placeholder in package.json
 updatePackageJson
-
-# Install dependencies
-echo "Installing dependencies..."
-npm i --legacy-peer-deps "${dependencies[@]}"
-
-# Install dev dependencies
-echo "Installing dev dependencies..."
-npm i -D --legacy-peer-deps "${devDependencies[@]}"
-
-# Get dependency versions
-getDependencyVersions
 
 # Fix devDependencies in package.json
 correctPackageJsonOrder
