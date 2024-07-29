@@ -1,6 +1,6 @@
 {
 	"name": "@rob.hameetman/test-package",
-	"version": "1.0.0-alpha.1",
+	"version": "0.0.1",
 	"type": "module",
 	"description": "A package for testing configs",
 	"author": "Robert H. Hameetman (https://www.robhameetman.com/)",
